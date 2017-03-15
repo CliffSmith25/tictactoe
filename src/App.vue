@@ -85,7 +85,7 @@ export default {
       }
     },
     playComputerTurn: function () {
-      const i = computerPlay(this.tableState, 'X')
+      const i = computerPlay(this.tableState, this.compPiece, this.playerPiece)
       this.tableState[i] = this.compPiece
       let tempInactive = this.isInactive.slice()
       tempInactive[i] = true

@@ -9,9 +9,9 @@ export function checkForWinner (boardState) {
   }, 'no winner')
 }
 
-export function computerPlay (boardState, char) {
-  const compCanWin = canWin(boardState, char)
-  const humanCanWin = canWin(boardState, 'O')
+export function computerPlay (boardState, compChar, humChar) {
+  const compCanWin = canWin(boardState, compChar)
+  const humanCanWin = canWin(boardState, humChar)
   if (compCanWin.canWin === true) return getWinSquare(winCombos[compCanWin.combo], boardState)
   else if (humanCanWin.canWin === true) return getWinSquare(winCombos[humanCanWin.combo], boardState)
   else if (boardState[4] === '') return 4
