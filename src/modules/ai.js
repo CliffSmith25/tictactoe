@@ -10,41 +10,54 @@ export function checkForWinner (boardState) {
 }
 
 export function computerPlay (boardState, compChar, humChar) {
-  const compCanWin = canWin(boardState, compChar)
-  const humanCanWin = canWin(boardState, humChar)
-  if (compCanWin.canWin === true) return getWinSquare(winCombos[compCanWin.combo], boardState)
-  else if (humanCanWin.canWin === true) return getWinSquare(winCombos[humanCanWin.combo], boardState)
+  if (boardState.join('').length === 0) return 6
   else if (boardState.join('').length === 1) return getSecondMove(boardState)
-  else if (boardState[4] === '') return 4
-  else if (cornerAvailable(boardState) !== false) {
-    return cornerAvailable(boardState)
-  } else return nextAvailable(boardState)
+  else {
+    const move = minimax(boardState, 6, 'computer', compChar, humChar)
+    return move.square
+  }
 }
 
-/*
 function minimax (board, level, player, compChar, humChar) {
-  if (gameover || level === 0) return getScore(board, compChar, humChar)
+  if (gameOver(board) || level === 0) return {score: getScore(board, compChar, humChar)}
   let children = getLegalMoves(board)
   if (player === 'computer') {
-    let bestScore = Number.NEGATIVE_INFINITY
+    let bestScore = {score: Number.NEGATIVE_INFINITY}
     for (let i = 0; i < children.length; i++) {
-      let score = minimax(level - 1, 'opponent')
-      if (score > bestScore) bestScore = score
+      let newBoard = board.slice()
+      newBoard[children[i]] = compChar
+      let score = minimax(newBoard, level - 1, 'opponent', compChar, humChar)
+      if (score.score > bestScore.score) {
+        bestScore.score = score.score
+        bestScore.square = children[i]
+      }
     }
+    console.log(bestScore.score + '  ' + 'computer' + '   ' + level)
     return bestScore
   } else {
-    let bestScore = Number.POSITIVE_INFINITY
+    let bestScore = {score: Number.POSITIVE_INFINITY}
     for (let i = 0; i < children.length; i++) {
-      let score = minimax(level - 1, 'computer')
-      if (score < bestScore) bestScore = score
+      let newBoard = board.slice()
+      newBoard[children[i]] = humChar
+      let score = minimax(newBoard, level - 1, 'computer', compChar, humChar)
+      if (score.score < bestScore.score) {
+        bestScore.score = score.score
+        bestScore.square = children[i]
+      }
     }
+    console.log(bestScore.score + '  ' + 'human' + '   ' + level)
     return bestScore
   }
 }
-*/
 
-console.log(getScore(['X', 'X', 'O', '', '', 'O', '', '', 'O'], 'X', 'O'))
-console.log(getLegalMoves(['X', 'O', '', '', 'X', 'O', '', '', '']))
+function gameOver (board) {
+  let winPossibilities = mapWinCombos(board)
+  for (let i = 0; i < winPossibilities.length; i++) {
+    if (winPossibilities[i] === 'XXX' || winPossibilities[i] === 'OOO') return true
+  }
+  if (board.join('').length === 9) return true
+  return false
+}
 
 function getScore (board, compChar, humChar) {
   let score = 0
@@ -87,49 +100,14 @@ function getLegalMoves (board) {
 function getSecondMove (boardState) {
   if (boardState[4] !== '') return 0
   else {
-    const corners = [[0, 8], [2, 6]]
-    return corners.reduce((acc, val) => {
-      console.log(boardState[val[1]])
-      if (boardState[val[0]] !== '') return val[1]
-      else if (boardState[val[1]] !== '') return val[0]
-      else return acc
-    }, 0)
+    return 4
   }
 }
 
-function nextAvailable (boardState) {
-  for (let i = 0; i < boardState.length; i++) {
-    if (boardState[i] === '') return i
-  }
-}
-
-function cornerAvailable (boardState) {
-  const corners = [0, 2, 6, 8]
-  return corners.reduce((acc, val) => {
-    return (boardState[val] === '') ? val : acc
-  }, false)
-}
-
-function getWinSquare (winRow, boardState) {
-  for (let i = 0; i < 3; i++) {
-    if (boardState[winRow[i]] === '') {
-      return winRow[i]
-    }
-  }
-}
-
-function mapWinCombos (boardState, char) {
+function mapWinCombos (boardState) {
   return winCombos.map(arr => {
     return arr.reduce((acc, num) => {
       return boardState[num] + acc
     }, '')
   })
-}
-
-function canWin (boardState, char) {
-  const canWinSpots = mapWinCombos(boardState)
-  for (let i = 0; i < canWinSpots.length; i++) {
-    if (canWinSpots[i] === char + char) return { canWin: true, combo: i }
-  }
-  return { canWin: false }
 }
